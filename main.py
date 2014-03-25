@@ -16,15 +16,15 @@ done = deque(maxlen=200)
 Trying = True
 while Trying:
 	try:
-		USERNAME = _login()
+		#USERNAME = _login()
 		Trying = False
 	except praw.errors.InvalidUserPass:
 		print "Invalid Username/password, please try again."
 
 def main():
-	comments = r.get_comments('all')
+	comments = praw.helpers.comment_stream(r,'all', limit = 1000)
 	for i in comments:
-		translate = ""
+ 		translate = ""
 		if i.id in done:
 			continue
 		done.append(i.id)
@@ -35,14 +35,15 @@ def main():
 				translate += ''.join(chr(int(j[l:l+8], 2)) for l in xrange(0, len(j), 8)) + "\n\n"
 		if translate != "":
 			print translate
-			i.reply(translate)
+			#i.reply(translate)
 			sleep(2)
 
 
-while True:
-	try: 
-		main()
-		sleep(10)
-	except Exception as e:
-		print e
-		sleep(100)
+
+try: 
+	print "tick"
+	sleep(5)
+	main()
+except Exception as e:
+	print e
+	sleep(100)
