@@ -30,28 +30,32 @@ def main():
 		done.append(i.id)
 		translated = translate(i.body)
 		if translated != "":
+			print translated
 			i.reply(translated)
 			sleep(2)
 
 def translate(body):
-	pattern = r"([10 ]+)+"
-	matches = re.findall(pattern, body)
-	translated = ""
-	if all([i == ' ' for i in matches]):
-		return ""
-	for word in matches:
-		word_fixed = re.sub(" ", "", word)
-		if len(word_fixed) == 0:
-			continue
-		if len(word_fixed)%8 == 0 and all([k in ["0","1"] for k in word_fixed]):
-			translated += ("> "+ word+"\n\n")
-			translated += (''.join(chr(int(word_fixed[l:l+8], 2)) for l in xrange(0, len(word_fixed), 8)) + "\n\n")
-	return "".join(translated)
-
+	try:	
+		pattern = r"((\s|^)[10 ]+)+"
+		matches = re.findall(pattern, body)
+		matches = [re.sub("[\s]", "",i[0]) for i in matches]
+		translated = ""
+		if all([i == '' for i in matches]):
+			return ""
+		for word in matches:
+			word_fixed = re.sub(" ", "", word)
+			if len(word_fixed) == 0:
+				continue
+			if len(word_fixed)%8 == 0 and all([k in ["0","1"] for k in word_fixed]):
+				translated += ("> "+ word+"\n\n")
+				translated += (''.join(chr(int(word_fixed[l:l+8], 2)) for l in xrange(0, len(word_fixed), 8)) + "\n\n")
+		return "".join(translated)
+	except UnicodeEncodeError as e:
+		r.send_message('thirdegree', e, "%s, %s, %s, %s"%(translated, i.body, matches, word_fixed)) 
+		raise e
 
 
 try: 
-	pass
 	main()
 except Exception as e:
 	print e
